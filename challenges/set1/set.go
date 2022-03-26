@@ -4,15 +4,14 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 )
 
 // Challenge 1: Convert hex to base64
-func ConvertHexToBase64(input string) (string, error) {
-	hexBytes := []byte(input)
-
+func ConvertHexToBase64(hexBytes []byte) ([]byte, error) {
 	hexDecoded, err := hexDecodeBytes(hexBytes)
 	if err != nil {
-		return "", err
+		return []byte{}, err
 	}
 
 	// fmt.Println(string(hexDecoded))
@@ -20,7 +19,28 @@ func ConvertHexToBase64(input string) (string, error) {
 	base64Encoded := base64EncodeBytes(hexDecoded)
 	base64Encoded = bytes.Trim(base64Encoded, "\x00")
 
-	return string(base64Encoded), nil
+	return base64Encoded, nil
+}
+
+// Challenge 2: FixedXOR
+func FixedXOR(input1, input2 []byte) ([]byte, error) {
+	input1HexDecoded, _ := hexDecodeBytes(input1)
+	input2HexDecoded, _ := hexDecodeBytes(input2)
+
+	if len(input1HexDecoded) != len(input2HexDecoded) {
+		return []byte{}, errors.New("length of inputs in bytes are not equal")
+	}
+
+	outputBytes := make([]byte, len(input1HexDecoded))
+	for index := 0; index < len(input1HexDecoded); index++ {
+		outputBytes[index] = input1HexDecoded[index] ^ input2HexDecoded[index]
+	}
+
+	// fmt.Println(string(outputBytes))
+
+	outputHexEncodedBytes := hexEncodeBytes(outputBytes)
+
+	return outputHexEncodedBytes, nil
 }
 
 func hexDecodeBytes(hexBytes []byte) ([]byte, error) {
