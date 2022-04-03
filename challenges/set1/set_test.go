@@ -30,3 +30,17 @@ func TestFixedXOR(t *testing.T) {
 
 	assert.Equal(t, expectedOutput, actualOutput)
 }
+
+func TestSingleByteXORCipher(t *testing.T) {
+	input := []byte("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
+	expectedOutput := []byte("Cooking MC's like a pound of bacon")
+	expectedScore := 204
+
+	actualOutput, actualScore, err := SingleByteXORCipher(input)
+	if err != nil {
+		t.Fatal("error received from SingleByteXORCipher:", err)
+	}
+
+	assert.Equal(t, expectedOutput, actualOutput)
+	assert.Equal(t, expectedScore, actualScore)
+}
