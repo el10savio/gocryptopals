@@ -24,8 +24,15 @@ func ConvertHexToBase64(hexBytes []byte) ([]byte, error) {
 
 // Challenge 2: FixedXOR
 func FixedXOR(input1, input2 []byte) ([]byte, error) {
-	input1HexDecoded, _ := hexDecodeBytes(input1)
-	input2HexDecoded, _ := hexDecodeBytes(input2)
+	input1HexDecoded, err := hexDecodeBytes(input1)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	input2HexDecoded, err := hexDecodeBytes(input2)
+	if err != nil {
+		return []byte{}, err
+	}
 
 	if len(input1HexDecoded) != len(input2HexDecoded) {
 		return []byte{}, errors.New("length of inputs in bytes are not equal")
@@ -41,6 +48,36 @@ func FixedXOR(input1, input2 []byte) ([]byte, error) {
 	outputHexEncodedBytes := hexEncodeBytes(outputBytes)
 
 	return outputHexEncodedBytes, nil
+}
+
+// Challenge 3: Single-byte XOR cipher
+func SingleByteXORCipher(input []byte) ([]byte, int, error) {
+	inputHexDecoded, err := hexDecodeBytes(input)
+	if err != nil {
+		return []byte{}, 0, err
+	}
+
+	var result []byte
+	scoreMax := 0
+
+	for i := 0; i < 256; i++ {
+		resultPossible := make([]byte, len(inputHexDecoded))
+		scoreSoFar := 0
+
+		for j := 0; j < len(inputHexDecoded); j++ {
+			char := inputHexDecoded[j] ^ byte(i)
+			scoreSoFar += weightMap(char)
+			resultPossible[j] = char
+		}
+
+		if scoreSoFar > scoreMax {
+			result, scoreMax = resultPossible, scoreSoFar
+		}
+
+		scoreSoFar = 0
+	}
+
+	return result, scoreMax, nil
 }
 
 func hexDecodeBytes(hexBytes []byte) ([]byte, error) {
@@ -65,4 +102,35 @@ func base64EncodeBytes(input []byte) []byte {
 	base64Encoded := make([]byte, base64.StdEncoding.EncodedLen(len(input)))
 	base64.StdEncoding.Encode(base64Encoded, input)
 	return base64Encoded
+}
+
+func weightMap(char byte) int {
+	weight := map[byte]int{
+		byte('U'): 2,
+		byte('u'): 2,
+		byte('L'): 3,
+		byte('l'): 3,
+		byte('D'): 4,
+		byte('d'): 4,
+		byte('R'): 5,
+		byte('r'): 5,
+		byte('H'): 6,
+		byte('h'): 6,
+		byte('S'): 7,
+		byte('s'): 7,
+		byte(' '): 8,
+		byte('N'): 9,
+		byte('n'): 9,
+		byte('I'): 10,
+		byte('i'): 10,
+		byte('O'): 11,
+		byte('o'): 11,
+		byte('A'): 12,
+		byte('a'): 12,
+		byte('T'): 13,
+		byte('t'): 13,
+		byte('E'): 14,
+		byte('e'): 14,
+	}
+	return weight[char]
 }
