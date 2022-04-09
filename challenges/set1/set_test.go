@@ -44,3 +44,15 @@ func TestSingleByteXORCipher(t *testing.T) {
 	assert.Equal(t, expectedOutput, actualOutput)
 	assert.Equal(t, expectedScore, actualScore)
 }
+
+func TestDetectSingleCharacterXOR(t *testing.T) {
+	input := "./files/4.txt"
+	expectedOutput := []byte("Now that the party is jumping\n")
+
+	actualOutput, err := DetectSingleCharacterXOR(input)
+	if err != nil {
+		t.Fatal("error received from DetectSingleCharacterXOR:", err)
+	}
+
+	assert.Equal(t, expectedOutput, actualOutput)
+}
