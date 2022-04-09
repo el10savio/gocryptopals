@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"io/ioutil"
+	"strings"
 )
 
 // Challenge 1: Convert hex to base64
@@ -13,8 +15,6 @@ func ConvertHexToBase64(hexBytes []byte) ([]byte, error) {
 	if err != nil {
 		return []byte{}, err
 	}
-
-	// fmt.Println(string(hexDecoded))
 
 	base64Encoded := base64EncodeBytes(hexDecoded)
 	base64Encoded = bytes.Trim(base64Encoded, "\x00")
@@ -42,8 +42,6 @@ func FixedXOR(input1, input2 []byte) ([]byte, error) {
 	for index := 0; index < len(input1HexDecoded); index++ {
 		outputBytes[index] = input1HexDecoded[index] ^ input2HexDecoded[index]
 	}
-
-	// fmt.Println(string(outputBytes))
 
 	outputHexEncodedBytes := hexEncodeBytes(outputBytes)
 
@@ -78,6 +76,32 @@ func SingleByteXORCipher(input []byte) ([]byte, int, error) {
 	}
 
 	return result, scoreMax, nil
+}
+
+// Challenge 4: Detect single-character XOR
+func DetectSingleCharacterXOR(path string) ([]byte, error) {
+	file, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []byte
+	scoreMax := 0
+
+	lines := strings.Split(string(file), "\n")
+
+	for _, line := range lines {
+		resultPossible, scoreSoFar, err := SingleByteXORCipher([]byte(line))
+		if err != nil {
+			return nil, err
+		}
+
+		if scoreSoFar > scoreMax {
+			result, scoreMax = resultPossible, scoreSoFar
+		}
+	}
+
+	return result, nil
 }
 
 func hexDecodeBytes(hexBytes []byte) ([]byte, error) {
